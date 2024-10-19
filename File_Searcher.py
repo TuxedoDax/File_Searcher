@@ -2,6 +2,7 @@
 #Created by: TuxedoDax
 #Started on: May 22nd 2024
 #Finished on: May 24th 2024
+#Updated on: October 19th 2024
 #This program will search for any category of file (I.E: Photos, Documents, etc.) from a specified location, and copy them to a new location.
 #---------------
 
@@ -10,6 +11,15 @@ import os
 import binfiles
 import shutil
 from datetime import datetime
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    TextColumn,
+    TimeElapsedColumn,
+    TimeRemainingColumn,
+)
+
 
 def Filetyper():
     #Take input from user about the filetype.
@@ -177,31 +187,56 @@ def duplicate_file_checker(dst):
         return(updated_path)
 
 def file_copier(filetype,file_matches):
+
+    # Define custom progress bar
+    progress_bar = Progress(
+        TextColumn("[progress.percentage]{task.percentage:>3.0f}%"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TextColumn("•"),
+        TimeElapsedColumn(),
+        TextColumn("•"),
+        TimeRemainingColumn(),
+    )
+
     #Counter for iterating over my list
     myCounter = 0
     #Create the folder we will store everything in.
     destination_folder = folder_creation(filetype)
-    for file in file_matches:
-        #Normalize the path
-        path = file_matches[myCounter]
-        filename = path_normalization(path)
-        #We will be using this normalized src for the copying later.
-        src = filename
-        #Split the filename up by every \ (note that the "\\" is the only way to do this.)
-        filename = filename.rsplit("\\")
-        #Take the last entry from the list within filename, and set filename equal to that.
-        filename = filename[-1]
-        #Set this DST to wherever you want to save the files.
-        path = (destination_folder + "/" + filename)
-        dst = path_normalization(path)
-        dst = duplicate_file_checker(dst)
-        #Copying the file from src to dst.
-        shutil.copyfile(src, dst)
-        #Iterate the counter to move onto the next thing.
-        myCounter = myCounter + 1
-        print("\nI copied " + filename + "\nfrom " + src + "\nto " + dst)
-        print("\n")
+
+    with progress_bar as p:
+        while myCounter < len(file_matches):
+        #for file in file_matches:
+            for i in p.track(range(len(file_matches))):
+                #Normalize the path
+                if myCounter < len(file_matches):
+                    path = file_matches[myCounter]
+                    filename = path_normalization(path)
+                    #We will be using this normalized src for the copying later.
+                    src = filename
+                    #Split the filename up by every \ (note that the "\\" is the only way to do this.)
+                    filename = filename.rsplit("\\")
+                    #Take the last entry from the list within filename, and set filename equal to that.
+                    filename = filename[-1]
+                    #Set this DST to wherever you want to save the files.
+                    path = (destination_folder + "/" + filename)
+                    dst = path_normalization(path)
+                    dst = duplicate_file_checker(dst)
+                    
+                    print("\nCopying: " + filename)
+                    print("From: " + src)
+                    print("To: " + dst)
+                    print("\n")
+                    #Copying the file from src to dst.
+                    shutil.copyfile(src, dst)
+                    #Iterate the counter to move onto the next thing.
+                    myCounter = myCounter + 1
+
+                else:
+                    break
+                        
 
 filetype, path = filetype_and_path()
 file_matches = File_Detective(filetype,path)
 file_copier(filetype,file_matches)
+os.system('pause')
