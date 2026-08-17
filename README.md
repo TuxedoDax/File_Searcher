@@ -1,4 +1,4 @@
-The intention for this script and it's associated, but not created by me, binfile are to aid you in getting all of a certain type of data off your system.
+The intention for this script and it's the attached binfile (which I did not create) are to aid you in getting all of a certain type of data off your system.
 
 I've used this script to quickly decommission old hard drives, or help someone who can't find a certain file they swear exists.
 
